@@ -1,3 +1,4 @@
 langchain-anthropic
 langchain-core
 python-dotenv
+pytest
