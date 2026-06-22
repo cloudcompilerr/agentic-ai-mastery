@@ -34,4 +34,30 @@ clean and production-grade.
 
 ---
 
-<!-- Module 2 notes appended below as the course progresses -->
+## Module 2 — Prompt Engineering for Production
+
+### From `modules/module02/sprint_velocity_analyzer.py`
+
+| Python | What it does | Java equivalent / contrast |
+|---|---|---|
+| `class SprintVelocityAnalysis(BaseModel):` | Class **inheriting** from Pydantic's `BaseModel` — adds JSON schema generation, validation, and serialisation automatically | Like implementing an interface (`implements Serializable`) but Pydantic gives far more for free; Java records have no equivalent automatic schema generation |
+| `trend: str = Field(description="...")` | Class-body attribute with a type hint and `Field()` metadata — Pydantic reads these to generate the JSON schema sent to the model | Like a Java record component (`String trend`) but with no equivalent built-in annotation for schema description; closest is `@JsonProperty` from Jackson |
+| `List[str]` | Generic list type — square brackets, not angle brackets | Java's `List<String>` — same idea, different syntax |
+| `model.with_structured_output(Schema, method="json_schema", include_raw=True)` | Returns a **new Runnable** (wrapped model) — calling `.invoke()` on it returns a `dict`, not an `AIMessage` | No Spring AI equivalent at this abstraction level — Spring uses `BeanOutputConverter` manually to achieve the same single-call behaviour |
+| `result["raw"]` | Dict key access — `result` is a plain `dict` with keys `raw`, `parsed`, `parsing_error` | Java would return a typed object (`result.getRaw()`) — Python dicts are the lingua franca for ad-hoc structured data |
+| `if result["parsing_error"]:` | Checks if the value is truthy — `None` is falsy, so this only enters the block on a real error | Like `if (result.getParsingError() != null)` — Python collapses null-check and boolean-check into one idiom |
+| `f"Trend: {analysis.trend}\n"` | **f-string** — embed expressions directly in a string literal with `{}` | Like `String.format("Trend: %s\n", analysis.trend())` or a text block with substitution |
+| `except SprintAnalysisError: raise` | Re-raises the current exception unchanged — used to let typed exceptions propagate without being caught by the outer `except Exception` | Like `catch (SprintAnalysisError e) { throw e; }` in Java — prevents your own typed exception from being wrapped in itself |
+
+### From `capstone/engorgai/sprint_velocity_capability.py`
+
+| Python | What it does | Java equivalent / contrast |
+|---|---|---|
+| `sys.path.insert(0, str(PYTHON_ROOT))` | Adds a directory to Python's module search path at **runtime** | No Java equivalent — Maven resolves the classpath at build time from `pom.xml`. Python imports resolve at runtime against `sys.path` |
+| `if str(PYTHON_ROOT) not in sys.path:` | Guard to avoid adding the same path twice if the module is imported multiple times | Defensive check — no Java parallel needed since classpath is fixed at build time |
+| `from modules.module02.sprint_velocity_analyzer import (...)` | Multi-line import using parentheses — cosmetic, just for readability of long import lines | Like `import com.manish.module02.SprintVelocityAnalyzerService;` but the dotted path maps to actual filesystem directories, not a compiled package |
+| `", ".join(analysis.riskFlags)` | `str.join()` — joins a list of strings with a separator, called **on the separator** (not the list) | Like `String.join(", ", analysis.riskFlags())` — same concept and method name, but the receiver and argument are swapped compared to Java |
+
+---
+
+<!-- Module 3 notes appended below as the course progresses -->
